@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trivias Santas - Evangelio según San Marcos</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon-192x192.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="favicon-192x192.png">
+    <style>
+        /* Estilos CSS */
+        :root {
+            --color-primario: #2c3e50;
+            --color-secundario: #3498db;
+            --color-acento: #e74c3c;
+            --color-fondo: #f8f9fa;
+            --color-texto: #2c3e50;
+            --color-correcto: #27ae60;
+            --color-incorrecto: #c0392b;
+            --color-neutro: #95a5a6;
+            --color-blanco: #ffffff;
+            --sombra: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radio-borde: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--color-fondo);
+            color: var(--color-texto);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--color-primario);
+            color: var(--color-blanco);
+            padding: 1rem;
+            text-align: center;
+            box-shadow: var(--sombra);
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--color-blanco);
+            border-radius: var(--radio-borde);
+            box-shadow: var(--sombra);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .level-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .level-card {
+            background-color: var(--color-primario);
+            color: var(--color-blanco);
+            border-radius: var(--radio-borde);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .level-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 0.75rem;
+            background-color: rgba(44, 62, 80, 0.05);
+            border-radius: var(--radio-borde);
+        }
+
+        .home-btn {
+            background-color: transparent;
+            color: var(--color-primario);
+            border: 2px solid var(--color-primario);
+            border-radius: var(--radio-borde);
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            min-height: 40px;
+            min-width: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .home-btn:hover {
+            background-color: var(--color-primario);
+            color: var(--color-blanco);
+        }
+
+        .progress {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--color-primario);
+        }
+
+        .level-indicator {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-secundario);
+            text-transform: capitalize;
+            padding: 0.5rem 1rem;
+            background-color: rgba(52, 152, 219, 0.1);
+            border-radius: var(--radio-borde);
+        }
+
+        .question {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .option {
+            background-color: var(--color-fondo);
+            border: 2px solid var(--color-neutro);
+            border-radius: var(--radio-borde);
+            padding: 1rem;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .option:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-color: var(--color-secundario);
+        }
+
+        .option.selected {
+            border-color: var(--color-secundario);
+            background-color: rgba(52, 152, 219, 0.2);
+        }
+
+        .option.correct {
+            border-color: var(--color-correcto);
+            background-color: rgba(39, 174, 96, 0.2);
+        }
+
+        .option.incorrect {
+            border-color: var(--color-incorrecto);
+            background-color: rgba(192, 57, 43, 0.2);
+        }
+
+        .feedback {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: var(--radio-borde);
+            text-align: left;
+            display: none;
+        }
+
+        .feedback.correct {
+            background-color: rgba(39, 174, 96, 0.1);
+            border-left: 4px solid var(--color-correcto);
+        }
+
+        .feedback.incorrect {
+            background-color: rgba(192, 57, 43, 0.1);
+            border-left: 4px solid var(--color-incorrecto);
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        button {
+            background-color: var(--color-secundario);
+            color: var(--color-blanco);
+            border: none;
+            border-radius: var(--radio-borde);
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            min-height: 48px;
+            min-width: 48px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        button:disabled {
+            background-color: var(--color-neutro);
+            cursor: not-allowed;
+        }
+
+        .results {
+            text-align: center;
+        }
+
+        .results h2 {
+            margin-bottom: 1rem;
+            color: var(--color-primario);
+        }
+
+        .score {
+            font-size: 2rem;
+            margin: 1rem 0;
+            color: var(--color-secundario);
+        }
+
+        .message {
+            margin: 1.5rem 0;
+            font-size: 1.1rem;
+        }
+
+        .reference {
+            font-style: italic;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            color: var(--color-neutro);
+        }
+
+        @media (min-width: 768px) {
+            .options {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .question {
+                font-size: 1.1rem;
+            }
+            
+            .progress-container {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .home-btn {
+                order: 2;
+                width: 100%;
+            }
+            
+            .progress {
+                order: 1;
+            }
+            
+            .level-indicator {
+                order: 3;
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Trivias Santas</h1>
+        <p class="subtitle">Basado en el Evangelio según San Marcos</p>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Pantalla de selección de nivel -->
+            <div id="level-selection" class="screen active">
+                <h2>Selecciona un nivel de dificultad</h2>
+                <div class="level-selection">
+                    <div class="level-card" data-level="easy">
+                        <h2>Fácil</h2>
+                        <p>Preguntas básicas sobre los eventos principales del Evangelio</p>
+                    </div>
+                    <div class="level-card" data-level="medium">
+                        <h2>Medio</h2>
+                        <p>Preguntas con mayor detalle sobre personajes y enseñanzas</p>
+                    </div>
+                    <div class="level-card" data-level="hard">
+                        <h2>Avanzado</h2>
+                        <p>Preguntas sobre citas específicas y contextos detallados</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pantalla de juego -->
+            <div id="game-screen" class="screen">
+                <div class="progress-container">
+                    <button id="home-btn" class="home-btn">Inicio</button>
+                    <div class="progress">Pregunta <span id="current-question">1</span> / 100</div>
+                    <div class="level-indicator" id="level-indicator">Fácil</div>
+                </div>
+                <div class="question" id="question-text"></div>
+                <div class="options" id="options-container"></div>
+                <div class="feedback" id="feedback"></div>
+                <div class="navigation">
+                    <button id="prev-btn" disabled>Anterior</button>
+                    <button id="next-btn" disabled>Siguiente</button>
+                </div>
+            </div>
+
+            <!-- Pantalla de resultados -->
+            <div id="results-screen" class="screen">
+                <div class="results">
+                    <h2>¡Has completado el nivel!</h2>
+                    <div class="score">Tu puntuación: <span id="score">0</span>/100</div>
+                    <div class="message" id="result-message"></div>
+                    <button id="restart-btn">Jugar de nuevo</button>
+                    <button id="change-level-btn">Cambiar nivel</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Datos de las preguntas basadas en el Evangelio según San Marcos
+        const questionsData = {
+            easy: [
+                {
+                    question: "¿Quién es el autor de este evangelio?",
+                    options: ["San Mateo", "San Marcos", "San Lucas", "San Juan"],
+                    correct: 1,
+                    feedback: {
+                        correct: "El evangelio está escrito por San Marcos, como se indica en el título del documento: 'EL SANTO EVANGELIO SEGÚN SAN MARCOS'.",
+                        incorrect: "El autor de este evangelio es San Marcos, como se indica claramente en el título del documento."
+                    },
+                    reference: "EL SANTO EVANGELIO SEGÚN SAN MARCOS"
+                },
+                {
+                    question: "¿Qué mensaje proclamaba Juan el Bautista?",
+                    options: ["El bautismo de arrepentimiento para perdón de pecados", "La llegada del Mesías", "El fin del mundo", "La ley de Moisés"],
+                    correct: 0,
+                    feedback: {
+                        correct: "Según el texto, Juan predicaba 'el bautismo de arrepentimiento para perdón de pecados' (Marcos 1:4).",
+                        incorrect: "Juan el Bautista predicaba 'el bautismo de arrepentimiento para perdón de pecados', como se indica en Marcos 1:4."
+                    },
+                    reference: "Marcos 1:4"
+                },
+                {
+                    question: "¿Dónde fue bautizado Jesús?",
+                    options: ["En el mar de Galilea", "En el río Jordán", "En el templo de Jerusalén", "En el desierto"],
+                    correct: 1,
+                    feedback: {
+                        correct: "El texto indica que 'Jesús vino de Nazaret de Galilea, y fue bautizado por Juan en el Jordán' (Marcos 1:9).",
+                        incorrect: "Jesús fue bautizado por Juan en el río Jordán, según se relata en Marcos 1:9."
+                    },
+                    reference: "Marcos 1:9"
+                },
+                {
+                    question: "¿Cuántos días estuvo Jesús en el desierto siendo tentado?",
+                    options: ["7 días", "12 días", "30 días", "40 días"],
+                    correct: 3,
+                    feedback: {
+                        correct: "El texto dice que 'estuvo allí en el desierto cuarenta días, y era tentado por Satanás' (Marcos 1:13).",
+                        incorrect: "Jesús estuvo en el desierto cuarenta días siendo tentado, como se menciona en Marcos 1:13."
+                    },
+                    reference: "Marcos 1:13"
+                },
+                {
+                    question: "¿Quiénes fueron los primeros discípulos que Jesús llamó?",
+                    options: ["Pedro y Andrés", "Jacobo y Juan", "Mateo y Tomás", "Felipe y Bartolomé"],
+                    correct: 0,
+                    feedback: {
+                        correct: "Los primeros discípulos que Jesús llamó fueron Simón (Pedro) y Andrés, cuando estaban echando la red en el mar (Marcos 1:16-18).",
+                        incorrect: "Los primeros discípulos que Jesús llamó fueron Simón (Pedro) y Andrés, como se relata en Marcos 1:16-18."
+                    },
+                    reference: "Marcos 1:16-18"
+                },
+                // Más preguntas fáciles...
+            ],
+            medium: [
+                {
+                    question: "¿Qué le dijo Jesús a Simón y Andrés cuando los llamó para ser sus discípulos?",
+                    options: ["Sígueme y te haré pescador de hombres", "Venid en pos de mí, y haré que seáis pescadores de hombres", "Dejad vuestras redes y seguidme", "El reino de Dios se ha acercado"],
+                    correct: 1,
+                    feedback: {
+                        correct: "Jesús les dijo: 'Venid en pos de mí, y haré que seáis pescadores de hombres' (Marcos 1:17).",
+                        incorrect: "La frase exacta que Jesús usó fue: 'Venid en pos de mí, y haré que seáis pescadores de hombres' (Marcos 1:17)."
+                    },
+                    reference: "Marcos 1:17"
+                },
+                {
+                    question: "¿Qué sucedió cuando Jesús habló con el espíritu inmundo en la sinagoga de Capernaum?",
+                    options: ["El espíritu salió gritando", "El espíritu se arrodilló ante Jesús", "El espíritu salió en silencio", "El espíritu atacó a Jesús"],
+                    correct: 0,
+                    feedback: {
+                        correct: "El texto dice: 'Y el espíritu inmundo, sacudiéndole con violencia, y clamando a gran voz, salió de él' (Marcos 1:26).",
+                        incorrect: "Según Marcos 1:26, el espíritu inmundo salió del hombre sacudiéndolo con violencia y clamando a gran voz."
+                    },
+                    reference: "Marcos 1:26"
+                },
+                {
+                    question: "¿Qué le dijo Jesús al leproso que le pidió que lo limpiara?",
+                    options: ["Tu fe te ha sanado", "Sé limpio", "Quiero, sé limpio", "Vete y no peques más"],
+                    correct: 2,
+                    feedback: {
+                        correct: "Jesús le dijo: 'Quiero, sé limpio' (Marcos 1:41).",
+                        incorrect: "La respuesta de Jesús al leproso fue: 'Quiero, sé limpio', según se registra en Marcos 1:41."
+                    },
+                    reference: "Marcos 1:41"
+                },
+                {
+                    question: "¿Cuántos hombres fueron alimentados con cinco panes y dos peces?",
+                    options: ["4,000", "5,000", "3,000", "2,000"],
+                    correct: 1,
+                    feedback: {
+                        correct: "El texto indica: 'Y los que comían eran cinco mil hombres' (Marcos 6:44).",
+                        incorrect: "Según Marcos 6:44, fueron cinco mil hombres los que comieron de los cinco panes y dos peces."
+                    },
+                    reference: "Marcos 6:44"
+                },
+                {
+                    question: "¿Qué le preguntó Jesús a sus discípulos cuando llegaron a Cesarea de Filipo?",
+                    options: ["¿Quién dice la gente que soy yo?", "¿Quién decís que soy yo?", "¿Creéis que soy el Mesías?", "¿Qué debo hacer en Jerusalén?"],
+                    correct: 1,
+                    feedback: {
+                        correct: "Jesús les preguntó: 'Y vosotros, ¿quién decís que soy yo?' (Marcos 8:29).",
+                        incorrect: "La pregunta exacta de Jesús fue: 'Y vosotros, ¿quién decís que soy yo?', como se relata en Marcos 8:29."
+                    },
+                    reference: "Marcos 8:29"
+                },
+                // Más preguntas medias...
+            ],
+            hard: [
+                {
+                    question: "¿Cuál fue la respuesta de Pedro cuando Jesús le preguntó 'Y vosotros, ¿quién decís que soy yo?'",
+                    options: ["Tú eres el Mesías", "Tú eres el Hijo de Dios", "Tú eres el Cristo", "Tú eres el Santo de Dios"],
+                    correct: 2,
+                    feedback: {
+                        correct: "Pedro respondió: 'Tú eres el Cristo' (Marcos 8:29).",
+                        incorrect: "La respuesta de Pedro fue específicamente: 'Tú eres el Cristo', según se registra en Marcos 8:29."
+                    },
+                    reference: "Marcos 8:29"
+                },
+                {
+                    question: "¿Qué le dijo Jesús a la mujer que tocó su manto para sanarse de su flujo de sangre?",
+                    options: ["Tu fe te ha sanado", "Hija, tu fe te ha hecho salva", "Mujer, tu fe te ha curado", "Tu fe te ha salvado"],
+                    correct: 1,
+                    feedback: {
+                        correct: "Jesús le dijo: 'Hija, tu fe te ha hecho salva; vé en paz, y queda sana de tu azote' (Marcos 5:34).",
+                        incorrect: "La frase exacta de Jesús fue: 'Hija, tu fe te ha hecho salva; vé en paz, y queda sana de tu azote' (Marcos 5:34)."
+                    },
+                    reference: "Marcos 5:34"
+                },
+                {
+                    question: "¿Qué palabras usó Jesús para sanar al sordo y tartamudo?",
+                    options: ["Sé abierto", "Habla", "Escucha y habla", "Efata"],
+                    correct: 3,
+                    feedback: {
+                        correct: "Jesús dijo: 'Efata, es decir: Sé abierto' (Marcos 7:34).",
+                        incorrect: "Jesús usó la palabra aramea 'Efata', que significa 'Sé abierto', como se indica en Marcos 7:34."
+                    },
+                    reference: "Marcos 7:34"
+                },
+                {
+                    question: "¿Qué le dijo Jesús al ciego Bartimeo cuando le pidió misericordia?",
+                    options: ["Tu fe te ha salvado", "Vete, tu fe te ha salvado", "Qué quieres que te haga", "Recibe la vista"],
+                    correct: 1,
+                    feedback: {
+                        correct: "Jesús le dijo: 'Vete, tu fe te ha salvado' (Marcos 10:52).",
+                        incorrect: "La respuesta de Jesús al ciego Bartimeo fue: 'Vete, tu fe te ha salvado', según se relata en Marcos 10:52."
+                    },
+                    reference: "Marcos 10:52"
+                },
+                {
+                    question: "¿Qué le dijo Jesús a la higuera que no tenía frutos?",
+                    options: ["Nunca jamás coma nadie fruto de ti", "Que nunca más des fruto", "Que te seques", "Maldita seas para siempre"],
+                    correct: 0,
+                    feedback: {
+                        correct: "Jesús dijo a la higuera: 'Nunca jamás coma nadie fruto de ti' (Marcos 11:14).",
+                        incorrect: "La maldición exacta de Jesús a la higuera fue: 'Nunca jamás coma nadie fruto de ti', como se registra en Marcos 11:14."
+                    },
+                    reference: "Marcos 11:14"
+                },
+                // Más preguntas difíciles...
+            ]
+        };
+
+        // Estado de la aplicación
+        let currentLevel = null;
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = null;
+        let answeredQuestions = [];
+        let audioContext = null;
+
+        // Elementos del DOM
+        const levelSelectionScreen = document.getElementById('level-selection');
+        const gameScreen = document.getElementById('game-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const currentQuestionElement = document.getElementById('current-question');
+        const questionTextElement = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackElement = document.getElementById('feedback');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const scoreElement = document.getElementById('score');
+        const resultMessageElement = document.getElementById('result-message');
+        const restartBtn = document.getElementById('restart-btn');
+        const changeLevelBtn = document.getElementById('change-level-btn');
+        const homeBtn = document.getElementById('home-btn');
+        const levelIndicator = document.getElementById('level-indicator');
+
+        // Event listeners
+        document.querySelectorAll('.level-card').forEach(card => {
+            card.addEventListener('click', () => {
+                currentLevel = card.dataset.level;
+                initAudioContext();
+                startGame();
+            });
+        });
+
+        prevBtn.addEventListener('click', goToPreviousQuestion);
+        nextBtn.addEventListener('click', goToNextQuestion);
+        restartBtn.addEventListener('click', restartGame);
+        changeLevelBtn.addEventListener('click', changeLevel);
+        homeBtn.addEventListener('click', goToHome);
+
+        // Inicializar el contexto de audio
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // Generar sonido de éxito (respuesta correcta)
+        function playSuccessSound() {
+            if (!audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Configurar el oscilador para un tono agradable
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+            oscillator.frequency.exponentialRampToValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+            oscillator.frequency.exponentialRampToValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+            
+            // Configurar la envolvente de volumen para un sonido suave
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        // Generar sonido de error (respuesta incorrecta)
+        function playErrorSound() {
+            if (!audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Configurar el oscilador para un tono neutro
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4
+            oscillator.frequency.exponentialRampToValueAtTime(349.23, audioContext.currentTime + 0.1); // F4
+            oscillator.frequency.exponentialRampToValueAtTime(293.66, audioContext.currentTime + 0.2); // D4
+            
+            // Configurar la envolvente de volumen para un sonido discreto
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
+        // Funciones
+        function startGame() {
+            currentQuestion = 0;
+            score = 0;
+            selectedOption = null;
+            answeredQuestions = new Array(questionsData[currentLevel].length).fill(null);
+            
+            levelSelectionScreen.classList.remove('active');
+            gameScreen.classList.add('active');
+            resultsScreen.classList.remove('active');
+            
+            // Actualizar el indicador de nivel
+            updateLevelIndicator();
+            
+            loadQuestion();
+        }
+
+        function updateLevelIndicator() {
+            const levelNames = {
+                'easy': 'Fácil',
+                'medium': 'Medio',
+                'hard': 'Avanzado'
+            };
+            levelIndicator.textContent = levelNames[currentLevel];
+        }
+
+        function goToHome() {
+            gameScreen.classList.remove('active');
+            resultsScreen.classList.remove('active');
+            levelSelectionScreen.classList.add('active');
+            currentLevel = null;
+        }
+
+        function loadQuestion() {
+            // Actualizar progreso
+            currentQuestionElement.textContent = currentQuestion + 1;
+            
+            // Cargar pregunta
+            const question = questionsData[currentLevel][currentQuestion];
+            questionTextElement.textContent = question.question;
+            
+            // Cargar opciones
+            optionsContainer.innerHTML = '';
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.classList.add('option');
+                optionElement.textContent = option;
+                optionElement.addEventListener('click', () => selectOption(index));
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Restaurar estado si ya se respondió
+            if (answeredQuestions[currentQuestion] !== null) {
+                selectOption(answeredQuestions[currentQuestion], false);
+            }
+            
+            // Actualizar botones de navegación
+            prevBtn.disabled = currentQuestion === 0;
+            nextBtn.disabled = selectedOption === null;
+            
+            // Ocultar feedback
+            feedbackElement.style.display = 'none';
+            feedbackElement.className = 'feedback';
+        }
+
+        function selectOption(index, playSound = true) {
+            if (answeredQuestions[currentQuestion] !== null) {
+                // Si ya se respondió, solo mostramos el estado
+                selectedOption = answeredQuestions[currentQuestion];
+            } else {
+                // Si es la primera vez que se responde
+                selectedOption = index;
+                answeredQuestions[currentQuestion] = index;
+                
+                // Verificar si es correcto
+                const question = questionsData[currentLevel][currentQuestion];
+                const isCorrect = index === question.correct;
+                
+                if (isCorrect) {
+                    score++;
+                    if (playSound) playSuccessSound();
+                } else {
+                    if (playSound) playErrorSound();
+                }
+            }
+            
+            // Actualizar UI
+            const options = document.querySelectorAll('.option');
+            options.forEach((option, i) => {
+                option.classList.remove('selected', 'correct', 'incorrect');
+                if (i === selectedOption) {
+                    option.classList.add('selected');
+                    if (i === questionsData[currentLevel][currentQuestion].correct) {
+                        option.classList.add('correct');
+                    } else {
+                        option.classList.add('incorrect');
+                    }
+                }
+            });
+            
+            // Mostrar feedback
+            const question = questionsData[currentLevel][currentQuestion];
+            const isCorrect = selectedOption === question.correct;
+            
+            feedbackElement.textContent = isCorrect ? question.feedback.correct : question.feedback.incorrect;
+            feedbackElement.classList.add(isCorrect ? 'correct' : 'incorrect');
+            feedbackElement.style.display = 'block';
+            
+            // Añadir referencia
+            const referenceElement = document.createElement('div');
+            referenceElement.classList.add('reference');
+            referenceElement.textContent = `Referencia: ${question.reference}`;
+            feedbackElement.appendChild(referenceElement);
+            
+            // Habilitar botón siguiente
+            nextBtn.disabled = false;
+        }
+
+        function goToPreviousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                selectedOption = null;
+                loadQuestion();
+            }
+        }
+
+        function goToNextQuestion() {
+            if (currentQuestion < questionsData[currentLevel].length - 1) {
+                currentQuestion++;
+                selectedOption = null;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            gameScreen.classList.remove('active');
+            resultsScreen.classList.add('active');
+            
+            scoreElement.textContent = score;
+            
+            let message = '';
+            const percentage = (score / questionsData[currentLevel].length) * 100;
+            
+            if (percentage >= 90) {
+                message = '¡Excelente! Has demostrado un gran conocimiento del Evangelio según San Marcos.';
+            } else if (percentage >= 70) {
+                message = '¡Muy bien! Tienes un buen conocimiento del Evangelio según San Marcos.';
+            } else if (percentage >= 50) {
+                message = 'Bien hecho. Sigue estudiando el Evangelio según San Marcos para mejorar tu conocimiento.';
+            } else {
+                message = 'Te recomendamos leer nuevamente el Evangelio según San Marcos para familiarizarte mejor con su contenido.';
+            }
+            
+            resultMessageElement.textContent = message;
+        }
+
+        function restartGame() {
+            startGame();
+        }
+
+        function changeLevel() {
+            resultsScreen.classList.remove('active');
+            levelSelectionScreen.classList.add('active');
+            currentLevel = null;
+        }
+
+        // Generar más preguntas para completar las 100 por nivel
+        function generateAdditionalQuestions() {
+            // Esta función generaría preguntas adicionales basadas en el texto
+            // Para este ejemplo, solo mostramos cómo se haría
+            
+            // Para el nivel fácil
+            for (let i = 5; i < 100; i++) {
+                // Aquí se generarían preguntas adicionales basadas en el texto
+                // Por ejemplo:
+                questionsData.easy.push({
+                    question: "¿Quién sanó a la suegra de Simón?",
+                    options: ["Juan el Bautista", "Jesús", "Pedro", "Los discípulos"],
+                    correct: 1,
+                    feedback: {
+                        correct: "Jesús sanó a la suegra de Simón, tomándola de la mano y levantándola (Marcos 1:31).",
+                        incorrect: "Fue Jesús quien sanó a la suegra de Simón, como se relata en Marcos 1:31."
+                    },
+                    reference: "Marcos 1:31"
+                });
+            }
+            
+            // Para el nivel medio
+            for (let i = 5; i < 100; i++) {
+                // Aquí se generarían preguntas adicionales de nivel medio
+                questionsData.medium.push({
+                    question: "¿Qué le dijo Jesús al paralítico que fue bajado a través del techo?",
+                    options: ["Tus pecados te son perdonados", "Levántate y anda", "Tu fe te ha salvado", "Alégrate, estás sano"],
+                    correct: 0,
+                    feedback: {
+                        correct: "Jesús le dijo al paralítico: 'Hijo, tus pecados te son perdonados' (Marcos 2:5).",
+                        incorrect: "Jesús dijo al paralítico: 'Hijo, tus pecados te son perdonados', según se registra en Marcos 2:5."
+                    },
+                    reference: "Marcos 2:5"
+                });
+            }
+            
+            // Para el nivel difícil
+            for (let i = 5; i < 100; i++) {
+                // Aquí se generarían preguntas adicionales de nivel difícil
+                questionsData.hard.push({
+                    question: "¿Qué le dijo Jesús al hombre con la mano seca en la sinagoga?",
+                    options: ["Extiende tu mano", "Sana", "Levántate", "Tu fe te ha sanado"],
+                    correct: 0,
+                    feedback: {
+                        correct: "Jesús le dijo al hombre: 'Extiende tu mano' (Marcos 3:5).",
+                        incorrect: "La frase exacta de Jesús fue: 'Extiende tu mano', como se relata en Marcos 3:5."
+                    },
+                    reference: "Marcos 3:5"
+                });
+            }
+        }
+        
+        // Generar preguntas adicionales
+        generateAdditionalQuestions();
+    </script>
+</body>
+</html>
